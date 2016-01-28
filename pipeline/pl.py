@@ -7,7 +7,7 @@ Core classes for pipeline module
   ORGANIZATION: Stanford University
        LICENSE: MIT License, property of Stanford, use as you wish
        CREATED: 2016-14-15 16:01
- Last modified: 2016-01-27 17:16
+ Last modified: 2016-01-27 22:03
 
    DESCRIPTION: The core classes that can be used to build a pipeline.
 
