@@ -52,3 +52,5 @@ def test_exists_dict():
     for dir in dirs:
         file_list[dir] = 'directory'
     assert tests.exists(file_list) is True
+    files = create_rm_files('delete', 'file')
+    dirs = create_rm_files('delete', 'dir', 'iosjdf')
