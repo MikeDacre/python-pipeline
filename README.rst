@@ -28,6 +28,9 @@ be run with job managers, as the job submission will end successfully before
 the step has completed, breaking dependency tracking.
 
 
+.. contents:: **Contents**
+
+
 ************
 Installation
 ************
