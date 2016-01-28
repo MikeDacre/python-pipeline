@@ -7,7 +7,7 @@ Test functions compatible with pretest and donetest.
   ORGANIZATION: Stanford University
        LICENSE: MIT License, property of Stanford, use as you wish
        CREATED: 2016-51-27 16:01
- Last modified: 2016-01-27 17:17
+ Last modified: 2016-01-27 20:15
 
    DESCRIPTION: Use these to test for file existence, or to match a regex to
                 the contents of a file from the tail up.
@@ -17,6 +17,7 @@ Test functions compatible with pretest and donetest.
 
 ============================================================================
 """
+import os
 
 __all__ = ["exists", "tail_match"]
 
@@ -33,7 +34,22 @@ def exists(file_list, kind=None):
     :returns:   True on success, False on failure
 
     """
-    pass
+    tests = []
+    if isinstance(file_list, dict):
+        for file, kind in file_list.items():
+            tests.append(_test_file(file, kind))
+    elif isinstance(file_list, (tuple, list)):
+        for file in file_list:
+            if kind:
+                tests.append(_test_file(file, kind))
+            else:
+                tests.append(os.path.exists(file))
+    elif isinstance(file_list, str):
+        tests.append(os.path.exists(file_list))
+    else:
+        raise Exception('Invalid object type: {}. '.format(type(file_list)) +
+                        'Must be string, tuple, list, or dictionary.')
+    return False if False in tests else True
 
 
 def tail_match(file_list, match_string):
@@ -44,3 +60,14 @@ def tail_match(file_list, match_string):
     :returns:   True on success, False on failure
     """
     pass
+
+
+def _test_file(file, kind):
+    """Internal function to test existence."""
+    if kind.lower().startswith('dir'):
+        return os.path.isdir(file)
+    elif kind.lower() == 'file':
+        return os.path.isfile(file)
+    else:
+        raise Exception("Invalid kind: {}. ".format(kind) +
+                        "Must be 'directory' or 'file'")
