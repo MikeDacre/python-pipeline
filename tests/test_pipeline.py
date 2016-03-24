@@ -3,7 +3,7 @@ import os
 import pytest
 import pipeline as pl
 from pipeline.pl import RegexError
-from . import logme
+from pipeline import logme
 
 PIPELINE_FILE = 'test.test'
 logme.LOGFILE = 'test_pipeline.log'
