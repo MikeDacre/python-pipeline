@@ -3,11 +3,11 @@ import os
 import pytest
 import pipeline as pl
 from pipeline.pl import RegexError
-from logme import log
+import logme
 
 PIPELINE_FILE = 'test.test'
-LOGFILE = 'test_pipeline.log'
-MIN_LEVEL = 'info'
+logme.LOGFILE = 'test_pipeline.log'
+logme.MIN_LEVEL = 'info'
 
 pipeline_output = ''
 
@@ -28,7 +28,7 @@ Step   Name               Status
 
 def lg(msg, level):
     """Run logme log with LOGFILE."""
-    log(msg, LOGFILE, level=level, min_level=MIN_LEVEL)
+    logme.log(msg, level=level)
 
 
 def write_something(msg):
@@ -101,7 +101,7 @@ def test_additions():
     pip.save()
     global pipeline_output
     pipeline_output = str(pip)
-    lg(str(get_pipeline()), level=0)
+    lg(str(get_pipeline()), 'debug')
 
 
 def test_restore():
@@ -118,7 +118,7 @@ def test_restore():
         '<function write_something')
     assert pip['run2'].args == ('call2',)
     assert str(pip) == pipeline_output
-    lg(str(get_pipeline()), level=0)
+    lg(str(get_pipeline()), 'debug')
 
 
 def test_run():
@@ -130,7 +130,7 @@ def test_run():
         assert step.done is True
     assert pip['tofail'].done is False
     assert pip['tofail'].failed is True
-    lg(str(get_pipeline()), level=0)
+    lg(str(get_pipeline()), 'info')
 
 
 def test_output():
@@ -227,8 +227,7 @@ def test_failing_file_list():
 
 def test_good_file_list():
     """Create a good file regex and test."""
-    assert os.path.exists('hi_4298') is False
-    os.mkdir('hi_4298')
+    os.makedirs('hi_4298')
     here = os.path.abspath('.')
     filelist = [os.path.join(here, 'hi_4298', '1.txt'),
                 os.path.join(here, 'hi_4298', '2.txt'),
@@ -236,7 +235,7 @@ def test_good_file_list():
     for file in filelist:
         os.system('touch {}'.format(file))
     filelist.pop()
-    assert pl.pl.build_file_list(r'hi_4298/.*\.txt') == filelist
+    assert sorted(pl.pl.build_file_list(r'hi_4298/.*\.txt')) == sorted(filelist)
     os.system('rm -rf hi_4298')
 
 
@@ -274,15 +273,15 @@ def test_serial_step():
     #  pip = get_pipeline()
 
 
-def test_print():
-    """Print outputs to logfile."""
-    pip = get_pipeline()
-    with open(LOGFILE, 'a') as fout:
-        lg('Table:', level='info')
-        pip.print_table(fout)
-    with open(LOGFILE, 'a') as fout:
-        lg('Stats:', level='info')
-        pip.print_stats(fout, False)
+#  def test_print():
+    #  """Print outputs to logfile."""
+    #  pip = get_pipeline()
+    #  with open(logme.LOGFILE, 'a') as fout:
+        #  lg('Table:', level='info')
+        #  pip.print_table(fout)
+    #  with open(logme.LOGFILE, 'a') as fout:
+        #  lg('Stats:', level='info')
+        #  pip.print_stats(fout, False)
 
 
 def test_remove_files():

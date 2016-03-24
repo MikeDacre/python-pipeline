@@ -7,7 +7,7 @@ Core classes for pipeline module
   ORGANIZATION: Stanford University
        LICENSE: MIT License, property of Stanford, use as you wish
        CREATED: 2016-14-15 16:01
- Last modified: 2016-01-27 22:03
+ Last modified: 2016-03-23 18:36
 
    DESCRIPTION: The core classes that can be used to build a pipeline.
 
@@ -27,8 +27,7 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-from logme import log as lm  # In the MikeDacre/mike_tools/python repo
-from logme import LoggingException
+from . import logme
 
 __all__ = ["Pipeline", "Step", "Command", "Function", "get_pipeline",
            "run_cmd", "run_function"]
@@ -39,7 +38,7 @@ __all__ = ["Pipeline", "Step", "Command", "Function", "get_pipeline",
 
 DEFAULT_FILE = './pipeline_state.pickle'
 DEFAULT_PROT = 2  # Support python2 pickling, can be 4 if using python3 only
-LOG_LEVEL    = 'debug'  # Controls level of logging
+logme.MIN_LEVEL = 'debug'  # Controls level of logging
 # This will be replaced in step functions or commands with the contents of
 # file_list
 REGEX        = r'<StepFile>'
@@ -65,7 +64,7 @@ class Pipeline(object):
         self.current  = None  # The current pipeline step
         self.file     = pickle_file
         self.logfile  = pickle_file + '.log'  # Not set by init
-        self.loglev   = LOG_LEVEL
+        self.loglev   = logme.MIN_LEVEL
         self.root_dir = os.path.abspath(str(root))
         self.prot     = int(prot)  # Can change version if required
         self.save()
@@ -371,7 +370,7 @@ class Pipeline(object):
 
     def log(self, message, level='debug'):
         """Wrapper for logme log function."""
-        lm(message, logfile=self.logfile, level=level, min_level=self.loglev)
+        logme.log(message, logfile=self.logfile, level=level, min_level=self.loglev)
 
     def _get_current(self):
         """Set self.current to most recent 'Not run' or 'Failed' step."""
@@ -459,7 +458,7 @@ class Pipeline(object):
                       len([i for i in self.steps.values() if i.failed]))
         return output
 
-    class PipelineError(LoggingException):
+    class PipelineError(logme.LoggingException):
 
         """Failed pipeline steps."""
 
@@ -538,7 +537,7 @@ class Step(object):
             self.parent = None
         self.logfile     = self.parent.logfile if self.parent else None
         self.loglev      = self.parent.loglev if self.parent \
-            else LOG_LEVEL
+            else logme.MIN_LEVEL
         # Make sure dependencies are stored as a list
         if isinstance(depends, str):
             self.depends = [depends]
@@ -714,7 +713,7 @@ class Step(object):
         if self.logfile:
             args.update({'logfile': self.logfile})
         message = self.name + ' > ' + str(message)
-        lm(message, **args)
+        logme.log(message, **args)
 
     ################
     #  Commenting  #
@@ -1102,13 +1101,13 @@ class Step(object):
     #  Exceptions  #
     ################
 
-    class FailedTest(LoggingException):
+    class FailedTest(logme.LoggingException):
 
         """Failed during test."""
 
         pass
 
-    class StepError(LoggingException):
+    class StepError(logme.LoggingException):
 
         """Failed to build the command."""
 
@@ -1131,7 +1130,7 @@ class Step(object):
                 args.update({'logfile': logfile})
             # Print all exceptions
             for name, info in exceptions.items():
-                lm(name + ' failed with Exception', **args)
+                logme.log(name + ' failed with Exception', **args)
                 sys.stderr.write(info)
             # Raise a regular error
             message = message if message else 'Multiple steps failed'
@@ -1337,7 +1336,7 @@ class Command(Step):
     #  Exceptions  #
     ################
 
-    class CommandFailed(LoggingException):
+    class CommandFailed(logme.LoggingException):
 
         """Executed command returned non-zero."""
 
@@ -1543,21 +1542,21 @@ def sub_tests(test, test_regex, sub):
 ###############################################################################
 
 
-class PathError(LoggingException):
+class PathError(logme.LoggingException):
 
     """Command not in path."""
 
     pass
 
 
-class FunctionError(LoggingException):
+class FunctionError(logme.LoggingException):
 
     """Function call failed."""
 
     pass
 
 
-class RegexError(LoggingException):
+class RegexError(logme.LoggingException):
 
     """Bad regex, re module Exception suck."""
 
