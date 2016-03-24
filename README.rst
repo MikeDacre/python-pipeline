@@ -1,6 +1,8 @@
 ########
-Pipeline
+Pipeline                                
 ########
+
+.. image:: https://travis-ci.org/MikeDacre/python-pipeline.svg?branch=master
 
 Functions to build and manage a complete pipeline with python2 or python3. Full
 documentation is in that file.
